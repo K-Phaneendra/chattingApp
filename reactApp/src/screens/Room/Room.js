@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { cloneDeep } from 'lodash';
+import io from 'socket.io-client';
 import {
   FormGroup,
   ControlLabel,
@@ -7,6 +9,9 @@ import {
   Button
 } from 'react-bootstrap';
 import ChatBox from './ChatBox';
+
+// making connection
+const socket = io('http://localhost:4000');
 
 const FieldGroup = ({
   id, label, help, ...props
@@ -23,9 +28,23 @@ class Room extends Component {
     super();
     this.state = {
       name: '',
-      openChatBox: false
+      openChatBox: false,
+      chatHistory: []
     };
   }
+
+  componentDidMount() {
+    socket.on('chat', data => {
+      this.updateChatHistory(data);
+    });
+  }
+
+  updateChatHistory = data => {
+    const { chatHistory } = this.state;
+    const chatHistoryClone = cloneDeep(chatHistory);
+    chatHistoryClone.push(data);
+    this.setState({ chatHistory: chatHistoryClone });
+  };
 
   fieldOnChange = e => {
     this.setState({ [e.target.name]: e.target.value });
@@ -39,6 +58,7 @@ class Room extends Component {
   };
 
   render() {
+    const { chatHistory } = this.state;
     return (
       <div>
         <h2>Welcome To Chat Room</h2>
@@ -64,7 +84,11 @@ class Room extends Component {
             </form>
           </div>
           <div>
-            {this.state.openChatBox ? <ChatBox name={this.state.name} /> : ''}
+            {this.state.openChatBox ? (
+              <ChatBox name={this.state.name} chatHistory={chatHistory} />
+            ) : (
+              ''
+            )}
           </div>
         </div>
       </div>

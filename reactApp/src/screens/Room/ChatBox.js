@@ -6,7 +6,9 @@ import {
   HelpBlock,
   Button
 } from 'react-bootstrap';
-import { sendMessage } from '../../Socket/socket';
+// import { sendMessage } from '../../Socket/socket';
+import { sendMessage } from '../../actions/socketActions';
+import DisplayChat from './DisplayChat';
 
 const FieldGroup = ({
   id, label, help, ...props
@@ -19,9 +21,12 @@ const FieldGroup = ({
 );
 
 class ChatBox extends Component {
-  state = {
-    message: ''
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      message: ''
+    };
+  }
 
   fieldOnChange = e => {
     this.setState({ [e.target.name]: e.target.value });
@@ -32,9 +37,12 @@ class ChatBox extends Component {
   };
 
   render() {
+    const { chatHistory } = this.props;
     return (
       <div>
-        <div>{}</div>
+        <div>
+          <DisplayChat chat={chatHistory} />
+        </div>
         <div>
           <form>
             <div style={{ float: 'left', marginLeft: '10%', width: '50%' }}>
